@@ -14,20 +14,24 @@ namespace MarsRover
         private int directionIndex;
         
         
-        public void setInitialState(int xCoordinate, int yCoordinate, char direction)
+        public int SetInitialState(int xCoordinate, int yCoordinate, char direction)
         {
             if (IsWithinAllowedCoordinates(xCoordinate, yCoordinate))
             {
                 coordinateX = xCoordinate;
                 coordinateY = yCoordinate;
                 SetDirection(direction);
+                return 1;
             }
-            else ReturnOutOfBounds();
+            else 
+            //TODO throw out of bound exception instead of -1
+                return ReturnOutOfBounds();
         }
 
         private bool IsWithinAllowedCoordinates(int x, int y)
         {
-            return (x >= MINIMAL_COORDINATE_VALUE && x <= MAXIMAL_COORDINATE_VALUE) && (y >= MINIMAL_COORDINATE_VALUE && y <= MAXIMAL_COORDINATE_VALUE);
+            return (x >= MINIMAL_COORDINATE_VALUE && x <= MAXIMAL_COORDINATE_VALUE) 
+                   && (y >= MINIMAL_COORDINATE_VALUE && y <= MAXIMAL_COORDINATE_VALUE);
         }
 
         private int ReturnOutOfBounds()
@@ -47,7 +51,20 @@ namespace MarsRover
             };
         }
 
-        public void Move(char command)
+        public void ReadAndProcessCommands(char[] commands)
+        {
+            foreach (var command in commands)
+            {
+                if (CheckForObstacleOnNextMove(command))
+                {
+                    ReportObstacle();
+                    break;
+                }
+                Move(command);
+            }
+        }
+        
+        private void Move(char command)
         {
             switch (command)
             {
@@ -64,6 +81,7 @@ namespace MarsRover
                     RotateRight();
                     break;
             }
+            HandleEdgeWrapping();
         }
 
         private void MoveForward()
@@ -74,13 +92,13 @@ namespace MarsRover
                     coordinateY += 1;
                     break;
                 case 1:
-                    coordinateX -= 1;
+                    coordinateX += 1;
                     break;
                 case 2:
                     coordinateY -= 1;
                     break;
                 case 3:
-                    coordinateX += 1;
+                    coordinateX -= 1;
                     break;
             }
         }
@@ -120,9 +138,41 @@ namespace MarsRover
                 directionIndex += 1;
         }
 
-        public void CheckForObstacle()
+        private void HandleEdgeWrapping()
+        {
+            if (coordinateX > MAXIMAL_COORDINATE_VALUE)
+                coordinateX = MINIMAL_COORDINATE_VALUE;
+            else if (coordinateX < MINIMAL_COORDINATE_VALUE)
+                coordinateX = MAXIMAL_COORDINATE_VALUE;
+            else if (coordinateY > MAXIMAL_COORDINATE_VALUE)
+                coordinateY = MINIMAL_COORDINATE_VALUE;
+            else if (coordinateY < MINIMAL_COORDINATE_VALUE)
+                coordinateY = MAXIMAL_COORDINATE_VALUE;
+        }
+
+        private bool CheckForObstacleOnNextMove(char command)
+        {
+            return false;
+        }
+
+        private void ReportObstacle()
         {
             
+        }
+
+        private void ReportCurrentPositionAndAbort()
+        {
+            
+        }
+
+        public int CoordinateX()
+        {
+            return coordinateX;
+        }
+        
+        public int CoordinateY()
+        {
+            return coordinateY;
         }
     }
 }
