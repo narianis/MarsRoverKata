@@ -6,14 +6,18 @@ namespace MarsRover
 {
     public class MarsRover
     {
-        public static int MINIMAL_COORDINATE_VALUE = 1;
-        public static int MAXIMAL_COORDINATE_VALUE = 5;
+        private static int MINIMAL_COORDINATE_VALUE = 1;
+        private static int MAXIMAL_COORDINATE_VALUE = 5;
         private int coordinateX;
         private int coordinateY;
         private char[] directions = {'N', 'E', 'S', 'W'};
         private int directionIndex;
-        
-        
+        private bool[,] obstacles = new bool[MAXIMAL_COORDINATE_VALUE+1, MAXIMAL_COORDINATE_VALUE+1];
+        private int obstacleSensorCoordinateX;
+        private int obstacleSensorCoordinateY;
+        private bool obstacleEncountered;
+
+
         public int SetInitialState(int xCoordinate, int yCoordinate, char direction)
         {
             if (IsWithinAllowedCoordinates(xCoordinate, yCoordinate))
@@ -23,9 +27,8 @@ namespace MarsRover
                 SetDirection(direction);
                 return 1;
             }
-            else 
-            //TODO throw out of bound exception instead of -1
-                return ReturnOutOfBounds();
+            
+            return ReturnOutOfBounds();
         }
 
         private bool IsWithinAllowedCoordinates(int x, int y)
@@ -55,24 +58,25 @@ namespace MarsRover
         {
             foreach (var command in commands)
             {
-                if (CheckForObstacleOnNextMove(command))
+                Console.WriteLine($"X: {coordinateX}, Y: {coordinateY}");
+                CheckForObstacleOnNextMoveAndReport(command);
+                if (obstacleEncountered)
                 {
-                    ReportObstacle();
                     break;
                 }
-                Move(command);
+                Move(command,coordinateX,coordinateY);
             }
         }
         
-        private void Move(char command)
+        private void Move(char command, int x, int y)
         {
             switch (command)
             {
                 case 'f':
-                    MoveForward();
+                    MoveForward(x, y);
                     break;
                 case 'b':
-                    MoveBackward();
+                    MoveBackward(x, y);
                     break;
                 case 'l':
                     RotateLeft();
@@ -81,43 +85,44 @@ namespace MarsRover
                     RotateRight();
                     break;
             }
-            HandleEdgeWrapping();
+
+            HandleEdgeWrapping(); 
         }
 
-        private void MoveForward()
+        private void MoveForward(int x, int y)
         {
             switch (directionIndex)
             {
                 case 0:
-                    coordinateY += 1;
+                    y += 1;
                     break;
                 case 1:
-                    coordinateX += 1;
+                    x += 1;
                     break;
                 case 2:
-                    coordinateY -= 1;
+                    y -= 1;
                     break;
                 case 3:
-                    coordinateX -= 1;
+                    x -= 1;
                     break;
             }
         }
 
-        private void MoveBackward()
+        private void MoveBackward(int x, int y)
         {
             switch (directionIndex)
             {
                 case 0:
-                    coordinateY -= 1;
+                    y -= 1;
                     break;
                 case 1:
-                    coordinateX += 1;
+                    x -= 1;
                     break;
                 case 2:
-                    coordinateY += 1;
+                    y += 1;
                     break;
                 case 3:
-                    coordinateX -= 1;
+                    x += 1;
                     break;
             }
         }
@@ -140,7 +145,15 @@ namespace MarsRover
 
         private void HandleEdgeWrapping()
         {
-            if (coordinateX > MAXIMAL_COORDINATE_VALUE)
+            if (obstacleSensorCoordinateX > MAXIMAL_COORDINATE_VALUE)
+                obstacleSensorCoordinateX = MINIMAL_COORDINATE_VALUE;
+            else if (obstacleSensorCoordinateX < MINIMAL_COORDINATE_VALUE)
+                obstacleSensorCoordinateX = MAXIMAL_COORDINATE_VALUE;
+            else if (obstacleSensorCoordinateY > MAXIMAL_COORDINATE_VALUE)
+                obstacleSensorCoordinateY = MINIMAL_COORDINATE_VALUE;
+            else if (obstacleSensorCoordinateY < MINIMAL_COORDINATE_VALUE)
+                obstacleSensorCoordinateY = MAXIMAL_COORDINATE_VALUE;
+            else if (coordinateX > MAXIMAL_COORDINATE_VALUE)
                 coordinateX = MINIMAL_COORDINATE_VALUE;
             else if (coordinateX < MINIMAL_COORDINATE_VALUE)
                 coordinateX = MAXIMAL_COORDINATE_VALUE;
@@ -150,19 +163,15 @@ namespace MarsRover
                 coordinateY = MAXIMAL_COORDINATE_VALUE;
         }
 
-        private bool CheckForObstacleOnNextMove(char command)
+        private void CheckForObstacleOnNextMoveAndReport(char command)
         {
-            return false;
-        }
+            if (command == 'l' || command == 'r') return;
 
-        private void ReportObstacle()
-        {
+            obstacleSensorCoordinateX = coordinateX;
+            obstacleSensorCoordinateY = coordinateY;
             
-        }
-
-        private void ReportCurrentPositionAndAbort()
-        {
-            
+            Move(command, obstacleSensorCoordinateX, obstacleSensorCoordinateY);
+            obstacleEncountered = obstacles[obstacleSensorCoordinateX, obstacleSensorCoordinateY];
         }
 
         public int CoordinateX()
@@ -174,5 +183,9 @@ namespace MarsRover
         {
             return coordinateY;
         }
+
+        public void MakeObstacle(int x, int y) => obstacles[x, y] = true;
+
+        public bool ObstacleEncountered() => obstacleEncountered;
     }
 }

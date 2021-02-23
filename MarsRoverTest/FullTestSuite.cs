@@ -73,5 +73,17 @@ namespace MarsRover
             
             Assert.Equal(-1,rover.SetInitialState(0,25,'H'));
         }
+
+        [Fact]
+        public void ObstacleAtFirstMove()
+        {
+            char[] commands = {'f'};
+            rover.MakeObstacle(1,2);
+            TestWith(1, 1, 'N', commands);
+            
+            Assert.Equal(1, rover.CoordinateX());
+            Assert.Equal(1,rover.CoordinateY());
+            Assert.True(rover.ObstacleEncountered());
+        }
     }
 }

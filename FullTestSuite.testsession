@@ -1,0 +1,10 @@
+MarsRoverTest (7 tests) Failed: 1 test failed
+  MarsRover (7 tests) Failed: 1 test failed
+    FullTestSuite (7 tests) Failed: One or more child tests failed: 1 test failed
+      BackwardMovementHorizontal
+      BackwardMovementVertical
+      ForwardWithNoObstacles
+      LeftRotation
+      ObstacleAtFirstMove Failed: Assert.True() Failure
+      RightRotation
+      SetupWithInvalidValues
