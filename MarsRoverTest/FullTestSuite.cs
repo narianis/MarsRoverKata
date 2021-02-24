@@ -5,9 +5,10 @@ namespace MarsRover
 {
     public class FullTestSuite
     {
-        MarsRover rover = new MarsRover();
+
         private void TestWith(int x,int y, char dir, char[] commands)
         {
+            MarsRover rover = new MarsRover();
             rover.SetInitialState(x,y,dir);
             rover.ReadAndProcessCommands(commands);
         }

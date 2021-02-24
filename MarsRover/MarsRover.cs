@@ -1,82 +1,45 @@
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace MarsRover
 {
-    public class MarsRover
+    public class MarsRover : Point
     {
-        private static int MINIMAL_COORDINATE_VALUE = 1;
-        private static int MAXIMAL_COORDINATE_VALUE = 5;
-        private int coordinateX;
-        private int coordinateY;
-        private char[] directions = {'N', 'E', 'S', 'W'};
-        private int directionIndex;
-        private bool[,] obstacles = new bool[MAXIMAL_COORDINATE_VALUE+1, MAXIMAL_COORDINATE_VALUE+1];
-        private int obstacleSensorCoordinateX;
-        private int obstacleSensorCoordinateY;
-        private bool obstacleEncountered;
-
-
-        public int SetInitialState(int xCoordinate, int yCoordinate, char direction)
+        private Direction _direction;
+        public Point[,] grid;
+        
+        public MarsRover(int coordinateX, int coordinateY, Direction direction)
         {
-            if (IsWithinAllowedCoordinates(xCoordinate, yCoordinate))
+            if(coordinateX < MINIMAL_COORDINATE_VALUE || coordinateX > MAXIMAL_COORDINATE_VALUE ||
+               coordinateY < MINIMAL_COORDINATE_VALUE || coordinateY > MAXIMAL_COORDINATE_VALUE)
             {
-                coordinateX = xCoordinate;
-                coordinateY = yCoordinate;
-                SetDirection(direction);
-                return 1;
+                throw new ArgumentOutOfRangeException(
+                    $"Coordinate X must be between {MINIMAL_COORDINATE_VALUE} and {MAXIMAL_COORDINATE_VALUE}");
             }
-            
-            return ReturnOutOfBounds();
-        }
 
-        private bool IsWithinAllowedCoordinates(int x, int y)
-        {
-            return (x >= MINIMAL_COORDINATE_VALUE && x <= MAXIMAL_COORDINATE_VALUE) 
-                   && (y >= MINIMAL_COORDINATE_VALUE && y <= MAXIMAL_COORDINATE_VALUE);
+            x = coordinateX;
+            y = coordinateY;
+            _direction = direction;
         }
-
-        private int ReturnOutOfBounds()
-        {
-            return -1;
-        }
-
-        private void SetDirection(char direction)
-        {
-            directionIndex = direction switch
-            {
-                'N' => 0,
-                'E' => 1,
-                'S' => 2,
-                'W' => 3,
-                _ => directionIndex
-            };
-        }
+        
 
         public void ReadAndProcessCommands(char[] commands)
         {
             foreach (var command in commands)
             {
-                Console.WriteLine($"X: {coordinateX}, Y: {coordinateY}");
-                CheckForObstacleOnNextMoveAndReport(command);
-                if (obstacleEncountered)
-                {
-                    break;
-                }
-                Move(command,coordinateX,coordinateY);
+                IsNextMoveObstacle(command);
+                Move(command);
             }
         }
         
-        private void Move(char command, int x, int y)
+        private void Move(char command)
         {
             switch (command)
             {
                 case 'f':
-                    MoveForward(x, y);
+                    MoveForward();
                     break;
                 case 'b':
-                    MoveBackward(x, y);
+                    MoveBackward();
                     break;
                 case 'l':
                     RotateLeft();
@@ -85,43 +48,42 @@ namespace MarsRover
                     RotateRight();
                     break;
             }
-
             HandleEdgeWrapping(); 
         }
 
-        private void MoveForward(int x, int y)
+        private void MoveForward()
         {
-            switch (directionIndex)
+            switch (_direction)
             {
-                case 0:
+                case Direction.N:
                     y += 1;
                     break;
-                case 1:
+                case Direction.E:
                     x += 1;
                     break;
-                case 2:
+                case Direction.S:
                     y -= 1;
                     break;
-                case 3:
+                case Direction.W:
                     x -= 1;
                     break;
             }
         }
 
-        private void MoveBackward(int x, int y)
+        private void MoveBackward()
         {
-            switch (directionIndex)
+            switch (_direction)
             {
-                case 0:
+                case Direction.N:
                     y -= 1;
                     break;
-                case 1:
+                case Direction.E:
                     x -= 1;
                     break;
-                case 2:
+                case Direction.S:
                     y += 1;
                     break;
-                case 3:
+                case Direction.W:
                     x += 1;
                     break;
             }
@@ -129,63 +91,74 @@ namespace MarsRover
 
         private void RotateLeft()
         {
-            if (directionIndex == 0)
-                directionIndex = 3;
-            else
-                directionIndex -= 1;
+            switch (_direction)
+            {
+                case Direction.N:
+                    _direction = Direction.W;
+                    break;
+                case Direction.E:
+                    _direction = Direction.N;
+                    break;
+                case Direction.S:
+                    _direction = Direction.E;
+                    break;
+                case Direction.W:
+                    _direction = Direction.S;
+                    break;
+            }
         }
 
         private void RotateRight()
         {
-            if (directionIndex == 3)
-                directionIndex = 0;
-            else
-                directionIndex += 1;
+            switch (_direction)
+            {
+                case Direction.N:
+                    _direction = Direction.E;
+                    break;
+                case Direction.E:
+                    _direction = Direction.S;
+                    break;
+                case Direction.S:
+                    _direction = Direction.W;
+                    break;
+                case Direction.W:
+                    _direction = Direction.N;
+                    break;
+            }
         }
 
         private void HandleEdgeWrapping()
         {
-            if (obstacleSensorCoordinateX > MAXIMAL_COORDINATE_VALUE)
-                obstacleSensorCoordinateX = MINIMAL_COORDINATE_VALUE;
-            else if (obstacleSensorCoordinateX < MINIMAL_COORDINATE_VALUE)
-                obstacleSensorCoordinateX = MAXIMAL_COORDINATE_VALUE;
-            else if (obstacleSensorCoordinateY > MAXIMAL_COORDINATE_VALUE)
-                obstacleSensorCoordinateY = MINIMAL_COORDINATE_VALUE;
-            else if (obstacleSensorCoordinateY < MINIMAL_COORDINATE_VALUE)
-                obstacleSensorCoordinateY = MAXIMAL_COORDINATE_VALUE;
-            else if (coordinateX > MAXIMAL_COORDINATE_VALUE)
-                coordinateX = MINIMAL_COORDINATE_VALUE;
-            else if (coordinateX < MINIMAL_COORDINATE_VALUE)
-                coordinateX = MAXIMAL_COORDINATE_VALUE;
-            else if (coordinateY > MAXIMAL_COORDINATE_VALUE)
-                coordinateY = MINIMAL_COORDINATE_VALUE;
-            else if (coordinateY < MINIMAL_COORDINATE_VALUE)
-                coordinateY = MAXIMAL_COORDINATE_VALUE;
+            if (x > MAXIMAL_COORDINATE_VALUE)
+                x = MINIMAL_COORDINATE_VALUE;
+            else if (x < MINIMAL_COORDINATE_VALUE)
+                x = MAXIMAL_COORDINATE_VALUE;
+            else if (y > MAXIMAL_COORDINATE_VALUE)
+                y = MINIMAL_COORDINATE_VALUE;
+            else if (y < MINIMAL_COORDINATE_VALUE)
+                y = MAXIMAL_COORDINATE_VALUE;
         }
 
-        private void CheckForObstacleOnNextMoveAndReport(char command)
+        private bool IsNextMoveObstacle(char command)
         {
-            if (command == 'l' || command == 'r') return;
-
-            obstacleSensorCoordinateX = coordinateX;
-            obstacleSensorCoordinateY = coordinateY;
-            
-            Move(command, obstacleSensorCoordinateX, obstacleSensorCoordinateY);
-            obstacleEncountered = obstacles[obstacleSensorCoordinateX, obstacleSensorCoordinateY];
+            //TODO add checking depending on direction and command
+            if ((_direction == Direction.N && command == 'f') || (_direction == Direction.S && command == 'b'))
+            {
+                return grid[x, y + 1].Equals(typeof(Obstacle));
+            }
+            if (_direction == Direction.E)
+            {
+                return grid[x + 1, y].Equals(typeof(Obstacle));
+            }
+            if (_direction == Direction.S)
+            {
+                return grid[x, y - 1].Equals(typeof(Obstacle));
+            }
+            if (_direction == Direction.W)
+            {
+                return grid[x, y + 1].Equals(typeof(Obstacle));
+            }
+            return false;
         }
-
-        public int CoordinateX()
-        {
-            return coordinateX;
-        }
-        
-        public int CoordinateY()
-        {
-            return coordinateY;
-        }
-
-        public void MakeObstacle(int x, int y) => obstacles[x, y] = true;
-
-        public bool ObstacleEncountered() => obstacleEncountered;
     }
 }
