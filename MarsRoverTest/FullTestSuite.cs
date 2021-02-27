@@ -1,90 +1,163 @@
+using System;
 using Xunit;
 using MarsRover;
 
-namespace MarsRover
+namespace MarsRover.Tests
 {
     public class FullTestSuite
     {
-
-        private void TestWith(int x,int y, char dir, char[] commands)
-        {
-            MarsRover rover = new MarsRover();
-            rover.SetInitialState(x,y,dir);
-            rover.ReadAndProcessCommands(commands);
-        }
-        
         [Fact]
         public void ForwardWithNoObstacles()
         {
             char[] commands = new char[] {'f', 'f', 'f', 'f', 'f'};
+            Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
+            for (var i = 1; i <= Point.MAXIMAL_COORDINATE_VALUE; i++)
+            {
+                for (int j = 1; j <= Point.MAXIMAL_COORDINATE_VALUE; j++)
+                {
+                    grid[i, j] = new Point();
+                }
+            }
+            MarsRover rover = new MarsRover(1, 1, Direction.N,grid);
             
-            TestWith(1,1,'N',commands);
             
-            Assert.Equal(1,rover.CoordinateX());
-            Assert.Equal(1,rover.CoordinateY());
+            Assert.False(rover.ReadAndProcessCommands(commands));
+            Assert.Equal(1,rover.X());
+            Assert.Equal(1,rover.Y());
         }
 
         [Fact]
         public void LeftRotation()
         {
             char[] commands = new char[] {'f', 'l', 'f'};
+            Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
+            for (var i = 1; i <= Point.MAXIMAL_COORDINATE_VALUE; i++)
+            {
+                for (int j = 1; j <= Point.MAXIMAL_COORDINATE_VALUE; j++)
+                {
+                    grid[i, j] = new Point();
+                }
+            }
+            MarsRover rover = new MarsRover(1, 1, Direction.N,grid);
             
-            TestWith(2,2,'N',commands);
+            Assert.False(rover.ReadAndProcessCommands(commands));
+            Assert.Equal(5,rover.X());
+            Assert.Equal(2,rover.Y());
             
-            Assert.Equal(1,rover.CoordinateX());
-            Assert.Equal(3,rover.CoordinateY());
         }
-
+        
         [Fact]
         public void RightRotation()
         {
             char[] commands = new char[] {'f', 'r', 'f'};
-            
-            TestWith(3,3,'N',commands);
-            
-            Assert.Equal(4,rover.CoordinateX());
-            Assert.Equal(4,rover.CoordinateY());
-        }
 
+            Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
+            for (var i = 1; i <= Point.MAXIMAL_COORDINATE_VALUE; i++)
+            {
+                for (int j = 1; j <= Point.MAXIMAL_COORDINATE_VALUE; j++)
+                {
+                    grid[i, j] = new Point();
+                }
+            }
+            MarsRover rover = new MarsRover(3, 3, Direction.S,grid);
+            
+            Assert.False(rover.ReadAndProcessCommands(commands));
+            Assert.Equal(2,rover.X());
+            Assert.Equal(2,rover.Y());
+        }
+        
         [Fact]
         public void BackwardMovementVertical()
         {
             char[] commands = new char[] {'b','b'};
+            Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
+            for (var i = 1; i <= Point.MAXIMAL_COORDINATE_VALUE; i++)
+            {
+                for (int j = 1; j <= Point.MAXIMAL_COORDINATE_VALUE; j++)
+                {
+                    grid[i, j] = new Point();
+                }
+            }
+            MarsRover rover = new MarsRover(3,3,Direction.S,grid);
             
-            TestWith(3,3,'S',commands);
-            
-            Assert.Equal(3,rover.CoordinateX());
-            Assert.Equal(5,rover.CoordinateY());
+            Assert.False(rover.ReadAndProcessCommands(commands));
+            Assert.Equal(3,rover.X());
+            Assert.Equal(5,rover.Y());
         }
         [Fact]
         public void BackwardMovementHorizontal()
         {
             char[] commands = new char[] {'b','b'};
             
-            TestWith(3,1,'W',commands);
+            Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
+            for (var i = 1; i <= Point.MAXIMAL_COORDINATE_VALUE; i++)
+            {
+                for (int j = 1; j <= Point.MAXIMAL_COORDINATE_VALUE; j++)
+                {
+                    grid[i, j] = new Point();
+                }
+            }
+            MarsRover rover = new MarsRover(3,1,Direction.W,grid);
             
-            Assert.Equal(5,rover.CoordinateX());
-            Assert.Equal(1,rover.CoordinateY());
+            Assert.False(rover.ReadAndProcessCommands(commands));
+            Assert.Equal(5,rover.X());
+            Assert.Equal(1,rover.Y());
         }
-
+        
         [Fact]
         public void SetupWithInvalidValues()
-        {
-            char[] commands = new[] {'x', 'y', 'z'};
-            
-            Assert.Equal(-1,rover.SetInitialState(0,25,'H'));
-        }
-
+         {
+             char[] commands = {'f'};
+             Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
+             for (var i = 1; i <= Point.MAXIMAL_COORDINATE_VALUE; i++)
+             {
+                 for (int j = 1; j <= Point.MAXIMAL_COORDINATE_VALUE; j++)
+                 {
+                     grid[i, j] = new Point();
+                 }
+             }
+             
+             Assert.Throws<ArgumentOutOfRangeException>(()=>new MarsRover(7, 10, Direction.N,grid));
+         }
+        
         [Fact]
         public void ObstacleAtFirstMove()
         {
             char[] commands = {'f'};
-            rover.MakeObstacle(1,2);
-            TestWith(1, 1, 'N', commands);
+            Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
+            for (var i = 1; i <= Point.MAXIMAL_COORDINATE_VALUE; i++)
+            {
+                for (int j = 1; j <= Point.MAXIMAL_COORDINATE_VALUE; j++)
+                {
+                    grid[i, j] = new Point();
+                }
+            }
+            MarsRover rover = new MarsRover(1, 1, Direction.N,grid);
+            rover.grid[1, 2] = new Obstacle();
             
-            Assert.Equal(1, rover.CoordinateX());
-            Assert.Equal(1,rover.CoordinateY());
-            Assert.True(rover.ObstacleEncountered());
+            Assert.True(rover.ReadAndProcessCommands(commands));
+            Assert.Equal(1, rover.X());
+            Assert.Equal(1,rover.Y());
+        }
+        
+        [Fact]
+        public void ObstacleInitialisedButNotMet()
+        {
+            char[] commands = {'f','b','r','f'};
+            Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
+            for (var i = 1; i <= Point.MAXIMAL_COORDINATE_VALUE; i++)
+            {
+                for (int j = 1; j <= Point.MAXIMAL_COORDINATE_VALUE; j++)
+                {
+                    grid[i, j] = new Point();
+                }
+            }
+            MarsRover rover = new MarsRover(1, 1, Direction.N,grid);
+            rover.grid[5, 5] = new Obstacle();
+            
+            Assert.False(rover.ReadAndProcessCommands(commands));
+            Assert.Equal(2, rover.X());
+            Assert.Equal(1,rover.Y());
         }
     }
 }

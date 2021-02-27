@@ -6,8 +6,9 @@ namespace MarsRover
     {
         private Direction _direction;
         public Point[,] grid;
+        private bool _isObstacleEncountered;
         
-        public MarsRover(int coordinateX, int coordinateY, Direction direction)
+        public MarsRover(int coordinateX, int coordinateY, Direction direction, Point[,] grid)
         {
             if(coordinateX < MINIMAL_COORDINATE_VALUE || coordinateX > MAXIMAL_COORDINATE_VALUE ||
                coordinateY < MINIMAL_COORDINATE_VALUE || coordinateY > MAXIMAL_COORDINATE_VALUE)
@@ -19,16 +20,26 @@ namespace MarsRover
             x = coordinateX;
             y = coordinateY;
             _direction = direction;
+            this.grid = grid;
         }
-        
 
-        public void ReadAndProcessCommands(char[] commands)
+
+        public bool ReadAndProcessCommands(char[] commands)
         {
             foreach (var command in commands)
             {
-                IsNextMoveObstacle(command);
-                Move(command);
+                if (IsNextMoveObstacle(command))
+                {
+                    _isObstacleEncountered = true;
+                    break;
+                }
+                else
+                {
+                    Move(command);
+                }
             }
+
+            return _isObstacleEncountered;
         }
         
         private void Move(char command)
@@ -47,8 +58,8 @@ namespace MarsRover
                 case 'r':
                     RotateRight();
                     break;
-            }
-            HandleEdgeWrapping(); 
+            } 
+            HandleEdgeWrapping();
         }
 
         private void MoveForward()
@@ -141,22 +152,25 @@ namespace MarsRover
 
         private bool IsNextMoveObstacle(char command)
         {
-            //TODO add checking depending on direction and command
             if ((_direction == Direction.N && command == 'f') || (_direction == Direction.S && command == 'b'))
             {
-                return grid[x, y + 1].Equals(typeof(Obstacle));
+                if (y == MAXIMAL_COORDINATE_VALUE) return grid[x, MINIMAL_COORDINATE_VALUE] is Obstacle;
+                return grid[x, y + 1] is Obstacle;
             }
-            if (_direction == Direction.E)
+            if ((_direction == Direction.E && command == 'f') || (_direction == Direction.W && command == 'b'))
             {
-                return grid[x + 1, y].Equals(typeof(Obstacle));
+                if (x == MAXIMAL_COORDINATE_VALUE) return grid[MINIMAL_COORDINATE_VALUE, y] is Obstacle;
+                return grid[x + 1, y] is Obstacle;
             }
-            if (_direction == Direction.S)
+            if ((_direction == Direction.S && command == 'f') || (_direction == Direction.N && command == 'b'))
             {
-                return grid[x, y - 1].Equals(typeof(Obstacle));
+                if (y == MINIMAL_COORDINATE_VALUE) return grid[x, MAXIMAL_COORDINATE_VALUE] is Obstacle;
+                return grid[x, y - 1] is Obstacle;
             }
-            if (_direction == Direction.W)
+            if ((_direction == Direction.W && command == 'f') || (_direction == Direction.E && command == 'b'))
             {
-                return grid[x, y + 1].Equals(typeof(Obstacle));
+                if (x == MINIMAL_COORDINATE_VALUE) return grid[MAXIMAL_COORDINATE_VALUE, y] is Obstacle;
+                return grid[x - 1, y] is Obstacle;
             }
             return false;
         }
