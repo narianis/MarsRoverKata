@@ -1,13 +1,19 @@
 using System;
+using System.Collections.Generic;
 
 namespace MarsRover
 {
-    public class MarsRover : Point
+    public class MarsRover
     {
         private Direction _direction;
         public Point[,] grid;
         private bool _isObstacleEncountered;
-        
+        public static int MINIMAL_COORDINATE_VALUE = 1;
+        public static int MAXIMAL_COORDINATE_VALUE = 5;
+        private int x;
+        private int y;
+
+
         public MarsRover(int coordinateX, int coordinateY, Direction direction, Point[,] grid)
         {
             if(coordinateX < MINIMAL_COORDINATE_VALUE || coordinateX > MAXIMAL_COORDINATE_VALUE ||
@@ -21,6 +27,7 @@ namespace MarsRover
             y = coordinateY;
             _direction = direction;
             this.grid = grid;
+            
         }
 
 
@@ -41,25 +48,26 @@ namespace MarsRover
 
             return _isObstacleEncountered;
         }
+
+        // private void MapCommandToAction(char command)
+        // {
+        //     var mapping = new Dictionary<char, Action>
+        //     {
+        //         {'f', MoveForward},
+        //         {'b', MoveBackward},
+        //         {'l', RotateLeft},
+        //         {'r', RotateRight}
+        //     };
+        // }
         
         private void Move(char command)
         {
-            switch (command)
-            {
-                case 'f':
-                    MoveForward();
-                    break;
-                case 'b':
-                    MoveBackward();
-                    break;
-                case 'l':
-                    RotateLeft();
-                    break;
-                case 'r':
-                    RotateRight();
-                    break;
-            } 
-            HandleEdgeWrapping();
+            Dictionary<char,Action> moveDictionary = new Dictionary<char, Action>();
+            moveDictionary.Add('f', MoveForward);
+            moveDictionary.Add('b', MoveBackward);
+            moveDictionary.Add('l', RotateLeft);
+            moveDictionary.Add('r', RotateRight);
+            moveDictionary[command]();
         }
 
         private void MoveForward()
@@ -79,6 +87,7 @@ namespace MarsRover
                     x -= 1;
                     break;
             }
+            HandleEdgeWrapping();
         }
 
         private void MoveBackward()
@@ -98,44 +107,23 @@ namespace MarsRover
                     x += 1;
                     break;
             }
+            HandleEdgeWrapping();
         }
 
         private void RotateLeft()
         {
-            switch (_direction)
-            {
-                case Direction.N:
-                    _direction = Direction.W;
-                    break;
-                case Direction.E:
-                    _direction = Direction.N;
-                    break;
-                case Direction.S:
-                    _direction = Direction.E;
-                    break;
-                case Direction.W:
-                    _direction = Direction.S;
-                    break;
-            }
+            int directionIndex = (int) _direction;
+            directionIndex-= 1;
+            if (directionIndex < 0) directionIndex = 3;
+            _direction =  (Direction) directionIndex;
         }
 
         private void RotateRight()
         {
-            switch (_direction)
-            {
-                case Direction.N:
-                    _direction = Direction.E;
-                    break;
-                case Direction.E:
-                    _direction = Direction.S;
-                    break;
-                case Direction.S:
-                    _direction = Direction.W;
-                    break;
-                case Direction.W:
-                    _direction = Direction.N;
-                    break;
-            }
+            int directionIndex = (int) _direction;
+            directionIndex += 1;
+            if (directionIndex > 3) directionIndex = 0;
+            _direction =  (Direction) directionIndex;
         }
 
         private void HandleEdgeWrapping()
@@ -174,5 +162,8 @@ namespace MarsRover
             }
             return false;
         }
+        
+        public int X() => x;
+        public int Y() => y;
     }
 }
