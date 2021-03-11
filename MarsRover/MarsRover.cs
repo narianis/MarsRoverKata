@@ -7,7 +7,6 @@ namespace MarsRover
     {
         private Direction _direction;
         public Point[,] grid;
-        private bool _isObstacleEncountered;
         public static int MINIMAL_COORDINATE_VALUE = 1;
         public static int MAXIMAL_COORDINATE_VALUE = 5;
         private int x;
@@ -36,30 +35,12 @@ namespace MarsRover
             foreach (var command in commands)
             {
                 if (IsNextMoveObstacle(command))
-                {
-                    _isObstacleEncountered = true;
-                    break;
-                }
-                else
-                {
-                    Move(command);
-                }
+                    return true;
+                Move(command);
             }
-
-            return _isObstacleEncountered;
+            return false;
         }
 
-        // private void MapCommandToAction(char command)
-        // {
-        //     var mapping = new Dictionary<char, Action>
-        //     {
-        //         {'f', MoveForward},
-        //         {'b', MoveBackward},
-        //         {'l', RotateLeft},
-        //         {'r', RotateRight}
-        //     };
-        // }
-        
         private void Move(char command)
         {
             Dictionary<char,Action> moveDictionary = new Dictionary<char, Action>();

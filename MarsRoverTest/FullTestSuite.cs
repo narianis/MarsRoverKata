@@ -7,7 +7,7 @@ namespace MarsRover.Tests
     public class FullTestSuite
     {
         [Fact]
-        public void ForwardWithNoObstacles()
+        public void MovesForwardWithNoObstacleEncounteredAndFinishesInStartPoint()
         {
             char[] commands = new char[] {'f', 'f', 'f', 'f', 'f'};
             Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
@@ -27,7 +27,7 @@ namespace MarsRover.Tests
         }
 
         [Fact]
-        public void LeftRotation()
+        public void MovesForwardRotatesLeftAndMovesForwardWithNoObstacleEncountered()
         {
             char[] commands = new char[] {'f', 'l', 'f'};
             Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
@@ -47,7 +47,7 @@ namespace MarsRover.Tests
         }
         
         [Fact]
-        public void RightRotation()
+        public void MovesForwardRotatesRightAndMovesForwardWithNoObstacleEncountered()
         {
             char[] commands = new char[] {'f', 'r', 'f'};
 
@@ -67,7 +67,7 @@ namespace MarsRover.Tests
         }
         
         [Fact]
-        public void BackwardMovementVertical()
+        public void MovesBackwardVerticallyTwiceAndDoesNotEncounterObstacle()
         {
             char[] commands = new char[] {'b','b'};
             Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
@@ -85,7 +85,7 @@ namespace MarsRover.Tests
             Assert.Equal(5,rover.Y());
         }
         [Fact]
-        public void BackwardMovementHorizontal()
+        public void MovesBackwardHorizontallyTwiceWhenNoObstacleEncountered()
         {
             char[] commands = new char[] {'b','b'};
             
@@ -105,7 +105,7 @@ namespace MarsRover.Tests
         }
         
         [Fact]
-        public void SetupWithInvalidValues()
+        public void ThrowsExceptionWhenUsingNotAllowedValues()
          {
              char[] commands = {'f'};
              Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
@@ -121,7 +121,7 @@ namespace MarsRover.Tests
          }
         
         [Fact]
-        public void ObstacleAtFirstMove()
+        public void DoesNotMoveAndReportsObstacleOnFirstMoveForward()
         {
             char[] commands = {'f'};
             Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
@@ -141,7 +141,7 @@ namespace MarsRover.Tests
         }
         
         [Fact]
-        public void ObstacleInitialisedButNotMet()
+        public void TravelToTheEndWhenObstacleInitialisedButNotMet()
         {
             char[] commands = {'f','b','r','f'};
             Point[,] grid = new Point[Point.MAXIMAL_COORDINATE_VALUE+1,Point.MAXIMAL_COORDINATE_VALUE+1];
